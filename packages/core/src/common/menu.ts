@@ -69,6 +69,7 @@ export interface MenuContribution {
 @injectable()
 export class MenuModelRegistry {
     protected readonly root = new CompositeMenuNode('');
+    protected readonly onDidRegisterEmitter = new Emitter<void>();
 
     constructor(
         @inject(ContributionProvider) @named(MenuContribution)
@@ -89,7 +90,9 @@ export class MenuModelRegistry {
 
     registerMenuNode(menuPath: MenuPath, menuNode: MenuNode): Disposable {
         const parent = this.findGroup(menuPath);
-        return parent.addNode(menuNode);
+        const disposable = parent.addNode(menuNode);
+        this.onDidRegisterEmitter.fire(undefined);
+        return disposable;
     }
 
     registerSubmenu(menuPath: MenuPath, label: string, options?: SubMenuOptions): Disposable {
@@ -193,6 +196,10 @@ export class MenuModelRegistry {
 
     getMenu(menuPath: MenuPath = []): CompositeMenuNode {
         return this.findGroup(menuPath);
+    }
+
+    get onDidRegister(): Event<void> {
+        return this.onDidRegisterEmitter.event;
     }
 }
 

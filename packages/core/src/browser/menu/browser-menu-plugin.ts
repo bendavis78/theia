@@ -55,14 +55,17 @@ export class BrowserMainMenuFactory implements MenuWidgetFactory {
         const menuBar = new DynamicMenuBarWidget();
         menuBar.id = 'theia:menubar';
         this.fillMenuBar(menuBar);
-        const listener = this.keybindingRegistry.onKeybindingsChanged(() => {
-            menuBar.clearMenus();
-            this.fillMenuBar(menuBar);
-        });
-        menuBar.disposed.connect(() => listener.dispose());
+        const onKeybindingsListener = this.keybindingRegistry.onKeybindingsChanged(() => this.updateMenuBar(menuBar));
+        const onDidRegisterListener = this.menuProvider.onDidRegister(() => this.updateMenuBar(menuBar));
+        menuBar.disposed.connect(() => onKeybindingsListener.dispose());
+        menuBar.disposed.connect(() => onDidRegisterListener.dispose());
         return menuBar;
     }
 
+    protected updateMenuBar(menuBar: MenuBarWidget): void {
+        menuBar.clearMenus();
+        this.fillMenuBar(menuBar);
+    }
     protected fillMenuBar(menuBar: MenuBarWidget): void {
         const menuModel = this.menuProvider.getMenu(MAIN_MENU_BAR);
         const menuCommandRegistry = this.createMenuCommandRegistry(menuModel);
