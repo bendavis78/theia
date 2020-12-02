@@ -24,7 +24,7 @@
 // and https://github.com/microsoft/vscode/blob/04c36be045a94fee58e5f8992d3e3fd980294a84/src/vs/workbench/services/workingCopy/common/workingCopyFileOperationParticipant.ts
 
 /* eslint-disable max-len */
-/* eslint-disable no-shadow */
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable no-null/no-null */
 /* eslint-disable @typescript-eslint/tslint/config */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -1423,9 +1423,9 @@ export class FileService {
 
     private toWatchKey(provider: FileSystemProvider, resource: URI, options: WatchOptions): string {
         return [
-            this.toMapKey(provider, resource), 	// lowercase path if the provider is case insensitive
-            String(options.recursive),			// use recursive: true | false as part of the key
-            options.excludes.join()				// use excludes as part of the key
+            this.toMapKey(provider, resource),  // lowercase path if the provider is case insensitive
+            String(options.recursive),          // use recursive: true | false as part of the key
+            options.excludes.join()             // use excludes as part of the key
         ].join();
     }
 

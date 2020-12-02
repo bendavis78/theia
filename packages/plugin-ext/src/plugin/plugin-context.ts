@@ -123,7 +123,13 @@ import {
     CallHierarchyIncomingCall,
     CallHierarchyOutgoingCall,
     TimelineItem,
-    EnvironmentVariableMutatorType
+    EnvironmentVariableMutatorType,
+    SemanticTokensLegend,
+    SemanticTokensBuilder,
+    SemanticTokens,
+    SemanticTokensEdits,
+    SemanticTokensEdit,
+    ColorThemeKind
 } from './types-impl';
 import { AuthenticationExtImpl } from './authentication-ext';
 import { SymbolKind } from '../common/plugin-api-rpc-model';
@@ -157,6 +163,7 @@ import { WebviewsExtImpl } from './webviews';
 import { ExtHostFileSystemEventService } from './file-system-event-service-ext-impl';
 import { LabelServiceExtImpl } from '../plugin/label-service';
 import { TimelineExtImpl } from './timeline';
+import { ThemingExtImpl } from './theming';
 
 export function createAPIFactory(
     rpc: RPCProtocol,
@@ -192,6 +199,7 @@ export function createAPIFactory(
     const decorationsExt = rpc.set(MAIN_RPC_CONTEXT.DECORATIONS_EXT, new DecorationsExtImpl(rpc));
     const labelServiceExt = rpc.set(MAIN_RPC_CONTEXT.LABEL_SERVICE_EXT, new LabelServiceExtImpl(rpc));
     const timelineExt = rpc.set(MAIN_RPC_CONTEXT.TIMELINE_EXT, new TimelineExtImpl(rpc, commandRegistry));
+    const themingExt = rpc.set(MAIN_RPC_CONTEXT.THEMING_EXT, new ThemingExtImpl(rpc));
     rpc.set(MAIN_RPC_CONTEXT.DEBUG_EXT, debugExt);
 
     return function (plugin: InternalPlugin): typeof theia {
@@ -421,6 +429,12 @@ export function createAPIFactory(
             },
             createInputBox(): theia.InputBox {
                 return quickOpenExt.createInputBox(plugin);
+            },
+            get activeColorTheme(): theia.ColorTheme {
+                return themingExt.activeColorTheme;
+            },
+            onDidChangeActiveColorTheme(listener, thisArg?, disposables?) {
+                return themingExt.onDidChangeActiveColorTheme(listener, thisArg, disposables);
             }
         };
 
@@ -672,6 +686,14 @@ export function createAPIFactory(
             registerRenameProvider(selector: theia.DocumentSelector, provider: theia.RenameProvider): theia.Disposable {
                 return languagesExt.registerRenameProvider(selector, provider, pluginToPluginInfo(plugin));
             },
+            registerDocumentSemanticTokensProvider(selector: theia.DocumentSelector, provider: theia.DocumentSemanticTokensProvider, legend: theia.SemanticTokensLegend):
+                theia.Disposable {
+                return languagesExt.registerDocumentSemanticTokensProvider(selector, provider, legend, pluginToPluginInfo(plugin));
+            },
+            registerDocumentRangeSemanticTokensProvider(selector: theia.DocumentSelector, provider: theia.DocumentRangeSemanticTokensProvider, legend: theia.SemanticTokensLegend):
+                theia.Disposable {
+                return languagesExt.registerDocumentRangeSemanticTokensProvider(selector, provider, legend, pluginToPluginInfo(plugin));
+            },
             registerCallHierarchyProvider(selector: theia.DocumentSelector, provider: theia.CallHierarchyProvider): theia.Disposable {
                 return languagesExt.registerCallHierarchyProvider(selector, provider);
             }
@@ -915,7 +937,13 @@ export function createAPIFactory(
             CallHierarchyIncomingCall,
             CallHierarchyOutgoingCall,
             TimelineItem,
-            EnvironmentVariableMutatorType
+            EnvironmentVariableMutatorType,
+            SemanticTokensLegend,
+            SemanticTokensBuilder,
+            SemanticTokens,
+            SemanticTokensEdits,
+            SemanticTokensEdit,
+            ColorThemeKind
         };
     };
 }
